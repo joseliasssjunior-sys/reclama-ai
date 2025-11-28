@@ -17,7 +17,6 @@ st.set_page_config(
 )
 
 # --- 2. CONFIGURAÇÕES TÉCNICAS ---
-# Tenta carregar as chaves secretas. Se não tiver, o app roda em "modo visual" (sem IA/Email)
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=api_key)
@@ -33,7 +32,7 @@ try:
 except:
     EMAIL_DISPONIVEL = False
 
-# --- 3. FUNÇÕES AUXILIARES (PDF e E-mail) ---
+# --- 3. FUNÇÕES AUXILIARES ---
 class PDF(FPDF):
     def header(self):
         self.set_font('Arial', 'B', 14)
@@ -52,12 +51,10 @@ def gerar_pdf_download(texto_final, nome_arquivo):
     pdf = PDF()
     pdf.add_page()
     pdf.set_font("Arial", size=11)
-    # Tratamento simples para caracteres especiais no PDF
     texto_seguro = texto_final.encode('latin-1', 'replace').decode('latin-1')
     pdf.multi_cell(0, 7, texto_seguro)
     pdf_output = pdf.output(dest='S').encode('latin-1')
     b64 = base64.b64encode(pdf_output).decode()
-    # Botão de Download estilizado
     return f'<a href="data:application/octet-stream;base64,{b64}" download="{nome_arquivo}.pdf" style="text-decoration:none;"><div style="background-color:#10B981; color:white; padding:15px; border-radius:8px; text-align:center; font-weight:bold; margin-top:15px; box-shadow: 0 4px 10px rgba(16,185,129,0.2);">📥 BAIXAR DOCUMENTO (PDF)</div></a>'
 
 def enviar_email_ticket(nome, contato, problema):
@@ -75,66 +72,62 @@ def enviar_email_ticket(nome, contato, problema):
         return True
     except: return False
 
-# --- 4. CSS PREMIUM (ESTILO MANUS/LOVABLE) ---
+# --- 4. CSS PREMIUM (CORREÇÃO DE ESPAÇAMENTO) ---
 def inject_custom_css():
     st.markdown("""
     <style>
-        /* Importa a fonte Plus Jakarta Sans (Moderna e Tech) */
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&display=swap');
         
-        /* FUNDO GERAL (Cinza Suave) */
+        /* Fundo Geral */
         .stApp { background-color: #F3F4F6; font-family: 'Plus Jakarta Sans', sans-serif; }
-        #MainMenu, footer, header {visibility: hidden;}
         
-        /* O "CARD" BRANCO CENTRALIZADO */
+        /* ESCONDER O MENU PADRÃO DO STREAMLIT */
+        #MainMenu, header, footer {visibility: hidden;}
+        
+        /* --- CORREÇÃO DA BARRA BRANCA (PULO DO GATO) --- */
+        div.block-container {
+            padding-top: 1rem !important; /* Puxa tudo pra cima */
+            padding-bottom: 1rem !important;
+        }
+
+        /* CONTAINER CARD CENTRAL */
         .app-card {
             background-color: #FFFFFF;
-            padding: 50px;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); /* Sombra suave */
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             border: 1px solid #FFFFFF;
-            max-width: 900px;
-            margin: 40px auto; /* Centraliza horizontalmente */
+            max-width: 850px;
+            margin: 0 auto; /* Centraliza */
         }
 
-        /* HEADER E LOGO */
-        .logo-text { font-size: 32px; font-weight: 800; color: #111827; letter-spacing: -1px; text-align: center; margin-bottom: 5px; }
+        /* HEADER */
+        .logo-text { font-size: 28px; font-weight: 800; color: #111827; letter-spacing: -1px; text-align: center; }
         .logo-dot { color: #10B981; }
-        .sub-text { text-align: center; color: #6B7280; font-size: 16px; margin-bottom: 40px; }
+        .sub-text { text-align: center; color: #6B7280; font-size: 15px; margin-bottom: 30px; }
 
-        /* ÍCONES (Imagens PNG) */
-        .icon-box {
-            display: flex; justify-content: center; margin-bottom: 15px;
-        }
-        .icon-img {
-            width: 64px; height: 64px; opacity: 0.9; transition: 0.3s;
-        }
+        /* ÍCONES */
+        .icon-box { display: flex; justify-content: center; margin-bottom: 10px; }
+        .icon-img { width: 55px; height: 55px; opacity: 0.9; }
         
-        /* TEXTOS */
-        h3 { font-size: 20px !important; font-weight: 700 !important; color: #111827 !important; margin-top: 0 !important; }
-        p { color: #6B7280 !important; font-size: 15px !important; }
+        /* TIPOGRAFIA */
+        h3 { font-size: 18px !important; font-weight: 700 !important; color: #111827 !important; margin-top: 0 !important; }
+        p { color: #6B7280 !important; font-size: 14px !important; }
 
-        /* BOTÕES PERSONALIZADOS */
+        /* BOTÕES */
         div.stButton > button {
-            width: 100%; height: 50px; border-radius: 10px; font-weight: 600; border: none; transition: 0.2s;
+            width: 100%; height: 48px; border-radius: 10px; font-weight: 600; border: none; transition: 0.2s;
         }
-        
-        /* Botão Primário (Escuro) */
         button[kind="primary"] { background-color: #111827; color: white; } 
         button[kind="primary"]:hover { background-color: #10B981; transform: translateY(-2px); }
         
-        /* Botão Secundário (Claro) */
         button[kind="secondary"] { background-color: white; color: #374151; border: 1px solid #E5E7EB; }
         button[kind="secondary"]:hover { border-color: #111827; color: #111827; }
 
-        /* INPUTS LIMPOS */
+        /* INPUTS */
         .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
-            background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 10px; padding: 10px; color: #111827;
+            background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 10px; color: #111827;
         }
-        .stTextInput input:focus { border-color: #10B981; background-color: white; }
-
-        /* Ajuste de espaçamento do Streamlit */
-        div[data-testid="stVerticalBlock"] { gap: 1rem; }
         
     </style>
     """, unsafe_allow_html=True)
@@ -150,12 +143,10 @@ def navegar(destino):
     st.session_state['step'] = 1
     st.rerun()
 
-# --- 6. ESTRUTURA VISUAL (CENTRALIZADA) ---
-# Usamos colunas para criar margens laterais e deixar o conteúdo no meio
+# --- 6. ESTRUTURA VISUAL ---
 c_esq, c_meio, c_dir = st.columns([1, 2, 1])
 
 with c_meio:
-    # TUDO ACONTECE DENTRO DESTE CARD BRANCO
     st.markdown('<div class="app-card">', unsafe_allow_html=True)
     
     # LOGO
@@ -164,53 +155,45 @@ with c_meio:
         <div class="sub-text">Inteligência Jurídica Automática</div>
     """, unsafe_allow_html=True)
 
-    # === TELA 1: HOME (MENU COM ÍCONES REAIS) ===
+    # === HOME ===
     if st.session_state['nav'] == 'home':
         
-        # LINHA 1: CONSUMIDOR
         c1, c2 = st.columns([1, 3])
         with c1:
-            # Ícone Sacola de Compras
             st.markdown('<div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/3144/3144456.png" class="icon-img"></div>', unsafe_allow_html=True)
         with c2:
             st.markdown("### Consumidor")
-            st.markdown("Problemas com Bancos, Voos, Compras e Serviços.")
+            st.markdown("Problemas com Bancos, Voos e Compras.")
             if st.button("Criar Reclamação ➝", key="btn_c", type="primary"): navegar('consumidor')
 
-        st.markdown("<hr style='margin: 30px 0; border:none; border-top: 1px solid #F3F4F6;'>", unsafe_allow_html=True)
+        st.markdown("<hr style='margin: 25px 0; border:none; border-top: 1px solid #F3F4F6;'>", unsafe_allow_html=True)
 
-        # LINHA 2: TRÂNSITO
         c3, c4 = st.columns([1, 3])
         with c3:
-            # Ícone Carro/Escudo
             st.markdown('<div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/2554/2554936.png" class="icon-img"></div>', unsafe_allow_html=True)
         with c4:
             st.markdown("### Trânsito")
-            st.markdown("Recurso de Multas, CNH e Lei Seca.")
+            st.markdown("Recurso de Multas e CNH.")
             if st.button("Criar Recurso ➝", key="btn_t", type="primary"): navegar('transito')
 
-        st.markdown("<hr style='margin: 30px 0; border:none; border-top: 1px solid #F3F4F6;'>", unsafe_allow_html=True)
+        st.markdown("<hr style='margin: 25px 0; border:none; border-top: 1px solid #F3F4F6;'>", unsafe_allow_html=True)
 
-        # LINHA 3: SUPORTE
         c5, c6 = st.columns([1, 3])
         with c5:
-            # Ícone Atendente
             st.markdown('<div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/4233/4233830.png" class="icon-img"></div>', unsafe_allow_html=True)
         with c6:
             st.markdown("### Consultoria Pro")
-            st.markdown("Casos complexos? Fale com especialistas.")
+            st.markdown("Fale com nossos especialistas.")
             if st.button("Entrar em Contato", key="btn_s", type="secondary"): navegar('suporte')
 
-    # === TELA WIZARD (FORMULÁRIOS PASSO A PASSO) ===
+    # === WIZARD ===
     elif st.session_state['nav'] in ['consumidor', 'transito']:
-        label = "Defesa do Consumidor" if st.session_state['nav'] == 'consumidor' else "Defesa de Trânsito"
+        label = "Consumidor" if st.session_state['nav'] == 'consumidor' else "Trânsito"
         
-        # Barra de Progresso e Título
-        st.markdown(f"<div style='color:#10B981; font-weight:700; font-size:12px; margin-bottom:5px; text-transform:uppercase;'>{label} • Passo {st.session_state['step']} de 3</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='color:#10B981; font-weight:700; font-size:11px; margin-bottom:5px; text-transform:uppercase;'>{label} • Passo {st.session_state['step']}/3</div>", unsafe_allow_html=True)
         st.progress(st.session_state['step']/3)
         st.write("")
 
-        # PASSO 1: DADOS PESSOAIS
         if st.session_state['step'] == 1:
             st.markdown("### Seus Dados")
             st.session_state['nome'] = st.text_input("Nome Completo", value=st.session_state.get('nome',''))
@@ -221,15 +204,14 @@ with c_meio:
             with cb1: 
                 if st.button("Cancelar", type="secondary"): navegar('home')
             with cb2: 
-                if st.button("Continuar", type="primary"):
+                if st.button("Continuar ➝", type="primary"):
                     if st.session_state['nome']:
                         st.session_state['step'] = 2
                         st.rerun()
                     else: st.warning("Preencha seu nome.")
 
-        # PASSO 2: DETALHES
         elif st.session_state['step'] == 2:
-            st.markdown("### Detalhes do Caso")
+            st.markdown("### Detalhes")
             if st.session_state['nav'] == 'consumidor':
                 st.session_state['alvo'] = st.text_input("Empresa Reclamada", value=st.session_state.get('alvo',''))
                 st.session_state['tipo'] = st.selectbox("Motivo", ["Cobrança Indevida", "Voo Atrasado", "Produto Defeituoso", "Outro"])
@@ -251,36 +233,31 @@ with c_meio:
                         st.rerun()
                     else: st.warning("Preencha os dados.")
 
-        # PASSO 3: RELATO E GERAÇÃO
         elif st.session_state['step'] == 3:
-            st.markdown("### O Relato")
-            st.info("Descreva o que houve. A IA escreverá o juridiquês.")
-            st.session_state['relato'] = st.text_area("", height=150, placeholder="Ex: Recebi uma cobrança no dia...")
+            st.markdown("### Relato")
+            st.info("Descreva o problema. A IA fará o resto.")
+            st.session_state['relato'] = st.text_area("", height=150, placeholder="Digite aqui...")
             
             st.write("")
-            if st.button("✨ GERAR DOCUMENTO AGORA", type="primary"):
+            if st.button("✨ GERAR DOCUMENTO", type="primary"):
                 if not st.session_state['relato']:
                     st.warning("Escreva o relato.")
                 else:
-                    with st.spinner("IA Redigindo..."):
+                    with st.spinner("IA Trabalhando..."):
                         ctx = "CDC" if st.session_state['nav'] == 'consumidor' else "CTB"
-                        p = f"Aja como advogado especialista em {ctx}. Redija documento formal. Cliente: {st.session_state['nome']}. Contra: {st.session_state['alvo']}. Caso: {st.session_state['tipo']}. Detalhes: {st.session_state['relato']}."
+                        p = f"Aja como advogado ({ctx}). Documento formal. Cliente: {st.session_state['nome']}, Doc: {st.session_state['doc']}. Contra: {st.session_state['alvo']}. Caso: {st.session_state['tipo']}. Detalhes: {st.session_state['relato']}."
                         try:
-                            if IA_DISPONIVEL:
-                                txt = modelo.generate_content(p).text
-                                st.success("Sucesso!")
-                                st.markdown(gerar_pdf_download(txt, "ReclamaAi_Doc"), unsafe_allow_html=True)
-                            else:
-                                st.error("Erro: Configure a chave da IA no secrets.toml")
-                        except Exception as e:
-                            st.error(f"Erro técnico: {e}")
+                            txt = modelo.generate_content(p).text if IA_DISPONIVEL else "Erro IA"
+                            st.success("Sucesso!")
+                            st.markdown(gerar_pdf_download(txt, "ReclamaAi_Doc"), unsafe_allow_html=True)
+                        except: st.error("Erro técnico.")
             
             st.write("")
             if st.button("Início", type="secondary"): navegar('home')
 
-    # === TELA SUPORTE ===
+    # === SUPORTE ===
     elif st.session_state['nav'] == 'suporte':
-        st.markdown("### Fale com Especialistas")
+        st.markdown("### Contato")
         c_nome = st.text_input("Nome")
         c_contato = st.text_input("WhatsApp / Email")
         c_msg = st.text_area("Mensagem", height=100)
@@ -288,15 +265,13 @@ with c_meio:
         st.write("")
         if st.button("Enviar", type="primary"):
             if enviar_email_ticket(c_nome, c_contato, c_msg): st.success("Enviado!")
-            else: st.error("Erro ao enviar. Verifique configurações de e-mail.")
+            else: st.error("Erro no envio.")
         if st.button("Voltar", type="secondary"): navegar('home')
 
-    # FIM DO CARD BRANCO
     st.markdown('</div>', unsafe_allow_html=True) 
 
-# RODAPÉ FORA DO CARD
 st.markdown("""
-<div style="text-align:center; color:#9CA3AF; font-size:12px; margin-top:20px;">
+<div style="text-align:center; color:#9CA3AF; font-size:11px; margin-top:20px;">
     Operado por CNPJ: 58.612.257/0001-84<br>CNAE 82.19-9-99
 </div>
 """, unsafe_allow_html=True)
