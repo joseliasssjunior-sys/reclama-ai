@@ -10,8 +10,8 @@ from email.mime.multipart import MIMEMultipart
 
 # --- 1. CONFIGURAÇÃO GERAL ---
 st.set_page_config(
-    page_title="Reclama.Ai | Defesa Automática",
-    page_icon="⚖️",
+    page_title="Reclama.Ai",
+    page_icon="🤖",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -45,7 +45,7 @@ class PDF(FPDF):
         self.set_y(-15)
         self.set_font('Arial', 'I', 8)
         self.set_text_color(150)
-        self.cell(0, 10, f'Gerado via Reclama.Ai - Operado por CNPJ 58.612.257/0001-84', 0, 0, 'C')
+        self.cell(0, 10, f'Gerado via Reclama.Ai - CNPJ 58.612.257/0001-84', 0, 0, 'C')
 
 def gerar_pdf_download(texto_final, nome_arquivo):
     pdf = PDF()
@@ -72,7 +72,7 @@ def enviar_email_ticket(nome, contato, problema):
         return True
     except: return False
 
-# --- 4. CSS PREMIUM (CORREÇÃO DE ESPAÇAMENTO) ---
+# --- 4. CSS PREMIUM (MODO APP NATIVO) ---
 def inject_custom_css():
     st.markdown("""
     <style>
@@ -81,52 +81,52 @@ def inject_custom_css():
         /* Fundo Geral */
         .stApp { background-color: #F3F4F6; font-family: 'Plus Jakarta Sans', sans-serif; }
         
-        /* ESCONDER O MENU PADRÃO DO STREAMLIT */
-        #MainMenu, header, footer {visibility: hidden;}
+        /* REMOVER TODAS AS BARRAS DO STREAMLIT */
+        header {visibility: hidden;}
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
         
-        /* --- CORREÇÃO DA BARRA BRANCA (PULO DO GATO) --- */
-        div.block-container {
-            padding-top: 1rem !important; /* Puxa tudo pra cima */
-            padding-bottom: 1rem !important;
+        /* PUXAR O CONTEÚDO PARA O TOPO (Margem Negativa) */
+        .block-container {
+            padding-top: 0rem !important;
+            padding-bottom: 2rem !important;
+            margin-top: -60px !important; /* Pulo do gato para subir tudo */
         }
 
-        /* CONTAINER CARD CENTRAL */
+        /* CARD CENTRAL FLUTUANTE */
         .app-card {
             background-color: #FFFFFF;
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.06);
             border: 1px solid #FFFFFF;
-            max-width: 850px;
-            margin: 0 auto; /* Centraliza */
+            max-width: 900px;
+            margin: 80px auto 0 auto; /* Espaço do topo */
         }
 
-        /* HEADER */
-        .logo-text { font-size: 28px; font-weight: 800; color: #111827; letter-spacing: -1px; text-align: center; }
+        /* HEADER LOGO */
+        .logo-text { font-size: 30px; font-weight: 800; color: #111827; letter-spacing: -1px; text-align: center; }
         .logo-dot { color: #10B981; }
-        .sub-text { text-align: center; color: #6B7280; font-size: 15px; margin-bottom: 30px; }
+        .sub-text { text-align: center; color: #6B7280; font-size: 15px; margin-bottom: 40px; }
 
         /* ÍCONES */
         .icon-box { display: flex; justify-content: center; margin-bottom: 10px; }
-        .icon-img { width: 55px; height: 55px; opacity: 0.9; }
+        .icon-img { width: 50px; height: 50px; }
         
-        /* TIPOGRAFIA */
+        /* TEXTOS E BOTÕES */
         h3 { font-size: 18px !important; font-weight: 700 !important; color: #111827 !important; margin-top: 0 !important; }
         p { color: #6B7280 !important; font-size: 14px !important; }
 
-        /* BOTÕES */
         div.stButton > button {
             width: 100%; height: 48px; border-radius: 10px; font-weight: 600; border: none; transition: 0.2s;
         }
         button[kind="primary"] { background-color: #111827; color: white; } 
         button[kind="primary"]:hover { background-color: #10B981; transform: translateY(-2px); }
-        
         button[kind="secondary"] { background-color: white; color: #374151; border: 1px solid #E5E7EB; }
-        button[kind="secondary"]:hover { border-color: #111827; color: #111827; }
-
+        
         /* INPUTS */
         .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
-            background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 10px; color: #111827;
+            background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 10px; padding: 5px; color: #111827;
         }
         
     </style>
@@ -163,7 +163,7 @@ with c_meio:
             st.markdown('<div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/3144/3144456.png" class="icon-img"></div>', unsafe_allow_html=True)
         with c2:
             st.markdown("### Consumidor")
-            st.markdown("Problemas com Bancos, Voos e Compras.")
+            st.markdown("Bancos, Voos, Compras.")
             if st.button("Criar Reclamação ➝", key="btn_c", type="primary"): navegar('consumidor')
 
         st.markdown("<hr style='margin: 25px 0; border:none; border-top: 1px solid #F3F4F6;'>", unsafe_allow_html=True)
@@ -173,7 +173,7 @@ with c_meio:
             st.markdown('<div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/2554/2554936.png" class="icon-img"></div>', unsafe_allow_html=True)
         with c4:
             st.markdown("### Trânsito")
-            st.markdown("Recurso de Multas e CNH.")
+            st.markdown("Recurso de Multas.")
             if st.button("Criar Recurso ➝", key="btn_t", type="primary"): navegar('transito')
 
         st.markdown("<hr style='margin: 25px 0; border:none; border-top: 1px solid #F3F4F6;'>", unsafe_allow_html=True)
@@ -184,11 +184,11 @@ with c_meio:
         with c6:
             st.markdown("### Consultoria Pro")
             st.markdown("Fale com nossos especialistas.")
-            if st.button("Entrar em Contato", key="btn_s", type="secondary"): navegar('suporte')
+            if st.button("Contato Humano", key="btn_s", type="secondary"): navegar('suporte')
 
     # === WIZARD ===
     elif st.session_state['nav'] in ['consumidor', 'transito']:
-        label = "Consumidor" if st.session_state['nav'] == 'consumidor' else "Trânsito"
+        label = "Defesa do Consumidor" if st.session_state['nav'] == 'consumidor' else "Defesa de Trânsito"
         
         st.markdown(f"<div style='color:#10B981; font-weight:700; font-size:11px; margin-bottom:5px; text-transform:uppercase;'>{label} • Passo {st.session_state['step']}/3</div>", unsafe_allow_html=True)
         st.progress(st.session_state['step']/3)
@@ -227,7 +227,7 @@ with c_meio:
                     st.session_state['step'] = 1
                     st.rerun()
             with cb2: 
-                if st.button("Continuar", type="primary"):
+                if st.button("Continuar ➝", type="primary"):
                     if st.session_state['alvo']:
                         st.session_state['step'] = 3
                         st.rerun()
@@ -245,7 +245,7 @@ with c_meio:
                 else:
                     with st.spinner("IA Trabalhando..."):
                         ctx = "CDC" if st.session_state['nav'] == 'consumidor' else "CTB"
-                        p = f"Aja como advogado ({ctx}). Documento formal. Cliente: {st.session_state['nome']}, Doc: {st.session_state['doc']}. Contra: {st.session_state['alvo']}. Caso: {st.session_state['tipo']}. Detalhes: {st.session_state['relato']}."
+                        p = f"Aja como advogado especialista em {ctx}. Redija documento formal. Cliente: {st.session_state['nome']}, Doc: {st.session_state['doc']}. Contra: {st.session_state['alvo']}. Caso: {st.session_state['tipo']}. Detalhes: {st.session_state['relato']}."
                         try:
                             txt = modelo.generate_content(p).text if IA_DISPONIVEL else "Erro IA"
                             st.success("Sucesso!")
